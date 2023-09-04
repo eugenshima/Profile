@@ -1,13 +1,19 @@
+// Package main is an entry point to this microservice
 package main
 
 import (
 	"context"
 	"fmt"
+	"net"
 
 	cfgrtn "github.com/eugenshima/profile/internal/config"
+	"github.com/eugenshima/profile/internal/handlers"
 	"github.com/eugenshima/profile/internal/repository"
-	"github.com/google/uuid"
+	"github.com/eugenshima/profile/internal/service"
+	proto "github.com/eugenshima/profile/proto"
+
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -31,6 +37,7 @@ func NewDBPsql(env string) (*pgxpool.Pool, error) {
 	return pool, nil
 }
 
+// main function of our microservice
 func main() {
 	cfg, err := cfgrtn.NewConfig()
 	if err != nil {
@@ -41,17 +48,20 @@ func main() {
 	if err != nil {
 		logrus.WithFields(logrus.Fields{"PgxDBAddr: ": cfg.PgxDBAddr}).Errorf("NewDBPsql: %v", err)
 	}
-	// example := &model.Profile{
-	// 	ID:       uuid.New(),
-	// 	Login:    "eugen",
-	// 	Password: "password",
-	// }
+
 	repository := repository.NewProfileRepository(pool)
-	//repository.CreateProfile(context.Background(), example)
-	result, _ := repository.GetAllProfiles(context.Background())
-	for _, value := range result {
-		value.BalanceID = uuid.New()
-		value.RefreshToken = "refresh token"
-		fmt.Println(value)
+	service := service.NewProfileService(repository)
+	handler := handlers.NewProfileHandler(service)
+
+	lis, err := net.Listen("tcp", "127.0.0.1:8082")
+	if err != nil {
+		logrus.Fatalf("cannot create listener: %s", err)
+	}
+
+	serverRegistrar := grpc.NewServer()
+	proto.RegisterPriceServiceServer(serverRegistrar, handler)
+	err = serverRegistrar.Serve(lis)
+	if err != nil {
+		logrus.Fatalf("cannot start server: %s", err)
 	}
 }
