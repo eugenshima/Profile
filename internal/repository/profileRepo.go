@@ -12,10 +12,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// ProfileRepository represents a repository level
 type ProfileRepository struct {
 	pool *pgxpool.Pool
 }
 
+// NewProfileRepository creates a new ProfileRepository
 func NewProfileRepository(pool *pgxpool.Pool) *ProfileRepository {
 	return &ProfileRepository{pool: pool}
 }

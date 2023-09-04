@@ -1,3 +1,4 @@
+// Package handlers contains gRPC methods
 package handlers
 
 import (
@@ -10,20 +11,24 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// ProfileHandler struct represents profile handler
 type ProfileHandler struct {
 	srv ProfileServiceInterface
 	proto.UnimplementedPriceServiceServer
 }
 
+// NewProfileHandler function creates a new profile handler
 func NewProfileHandler(srv ProfileServiceInterface) *ProfileHandler {
 	return &ProfileHandler{srv: srv}
 }
 
+// ProfileServiceInterface interface represents service interface methods
 type ProfileServiceInterface interface {
 	GetProfileByID(ctx context.Context, id uuid.UUID) (*model.Profile, error)
 	CreateNewProfile(ctx context.Context, profile *model.Profile) error
 }
 
+// GetProfileByID function gets profile vy provided ID
 func (ph *ProfileHandler) GetProfileByID(ctx context.Context, req *proto.GetProfileByIDRequest) (*proto.GetProfileByIDResponse, error) {
 	ID, err := uuid.Parse(req.ID)
 	if err != nil {
@@ -43,6 +48,7 @@ func (ph *ProfileHandler) GetProfileByID(ctx context.Context, req *proto.GetProf
 	return &proto.GetProfileByIDResponse{Profile: protoProfile}, nil
 }
 
+// CreateNewProfile function creates a new profile
 func (ph *ProfileHandler) CreateNewProfile(ctx context.Context, req *proto.CreateNewProfileRequest) (*proto.CreateNewProfileResponse, error) {
 	newProfile := &model.Profile{
 		ID:       uuid.New(),
@@ -57,6 +63,7 @@ func (ph *ProfileHandler) CreateNewProfile(ctx context.Context, req *proto.Creat
 	return &proto.CreateNewProfileResponse{}, nil
 }
 
+// UpdateProfile function updates a profile information
 func (ph *ProfileHandler) UpdateProfile(ctx context.Context, req *proto.UpdateProfileRequest) (*proto.UpdateProfileResponse, error) {
 	return &proto.UpdateProfileResponse{}, nil
 }

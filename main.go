@@ -49,9 +49,9 @@ func main() {
 		logrus.WithFields(logrus.Fields{"PgxDBAddr: ": cfg.PgxDBAddr}).Errorf("NewDBPsql: %v", err)
 	}
 
-	repository := repository.NewProfileRepository(pool)
-	service := service.NewProfileService(repository)
-	handler := handlers.NewProfileHandler(service)
+	rps := repository.NewProfileRepository(pool)
+	srv := service.NewProfileService(rps)
+	handler := handlers.NewProfileHandler(srv)
 
 	lis, err := net.Listen("tcp", "127.0.0.1:8082")
 	if err != nil {
