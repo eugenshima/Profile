@@ -48,7 +48,64 @@ func TestGetIdByWrongLoginPassword(t *testing.T) {
 	}()
 
 	id, pass, err := rps.GetIDByLoginPassword(context.Background(), "fake login")
+	require.NoError(t, err)
+	require.Equal(t, id, uuid.Nil)
+	require.Equal(t, pass, "")
+}
+
+func TestGetProfileByID(t *testing.T) {
+	err := CreateTestProfile()
+	require.NoError(t, err)
+	defer func() {
+		err = DeleteTestProfile(testProfile.ID)
+		require.NoError(t, err)
+	}()
+
+	profile, err := rps.GetProfileByID(context.Background(), testProfile.ID)
+	require.NoError(t, err)
+	require.NotNil(t, profile)
+	require.Equal(t, profile.ID, testProfile.ID)
+	require.Equal(t, profile.Login, testProfile.Login)
+	require.Equal(t, profile.Password, testProfile.Password)
+}
+
+func TestGetProfileByWrongID(t *testing.T) {
+	err := CreateTestProfile()
+	require.NoError(t, err)
+	defer func() {
+		err = DeleteTestProfile(testProfile.ID)
+		require.NoError(t, err)
+	}()
+
+	profile, err := rps.GetProfileByID(context.Background(), uuid.New())
 	require.Error(t, err)
-	require.Nil(t, id)
-	require.Nil(t, pass)
+	require.Nil(t, profile)
+}
+
+func TestCreateProfile(t *testing.T) {
+	err := CreateTestProfile()
+	require.NoError(t, err)
+	defer func() {
+		err = DeleteTestProfile(testProfile.ID)
+		require.NoError(t, err)
+	}()
+}
+
+func TestUpdateProfile(t *testing.T) {
+	err := CreateTestProfile()
+	require.NoError(t, err)
+	defer func() {
+		err = DeleteTestProfile(testProfile.ID)
+		require.NoError(t, err)
+	}()
+
+	testUpdateProfile := &model.Profile{
+		ID:           uuid.New(),
+		Login:        "new_test_login",
+		Password:     "new_test_password",
+		RefreshToken: "new_test_token",
+	}
+
+	err = rps.UpdateProfile(context.Background(), testUpdateProfile)
+	require.NoError(t, err)
 }

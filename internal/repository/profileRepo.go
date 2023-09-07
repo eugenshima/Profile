@@ -44,7 +44,7 @@ func (db *ProfileRepository) GetIDByLoginPassword(ctx context.Context, login str
 	}()
 
 	err = tx.QueryRow(ctx, "SELECT id, password FROM profile.profile WHERE login=$1", login).Scan(&ID, &pass)
-	if err != nil || pass == "" {
+	if err != nil {
 		logrus.Errorf("QueryRow: %v", err)
 		return uuid.Nil, "", fmt.Errorf("QueryRow: %w", err)
 	}
@@ -102,7 +102,7 @@ func (db *ProfileRepository) CreateProfile(ctx context.Context, profile *model.P
 			}
 		}
 	}()
-	_, err = db.pool.Exec(ctx, "INSERT INTO profile.profile (id, login, password) VALUES ($1, $2, $3)", profile.ID, profile.Login, profile.Password)
+	_, err = db.pool.Exec(ctx, "INSERT INTO profile.profile (id, login, password, refresh_token) VALUES ($1, $2, $3, $4)", profile.ID, profile.Login, profile.Password, profile.RefreshToken)
 	if err != nil {
 		return fmt.Errorf("exec: %w", err)
 	}

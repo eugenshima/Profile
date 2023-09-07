@@ -11,19 +11,21 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+//go:generate /home/yauhenishymanski/work/bin/mockery --name=ProfileService --case=underscore --output=./mocks
+
 // ProfileHandler struct represents profile handler
 type ProfileHandler struct {
-	srv ProfileServiceInterface
+	srv ProfileService
 	proto.UnimplementedPriceServiceServer
 }
 
 // NewProfileHandler function creates a new profile handler
-func NewProfileHandler(srv ProfileServiceInterface) *ProfileHandler {
+func NewProfileHandler(srv ProfileService) *ProfileHandler {
 	return &ProfileHandler{srv: srv}
 }
 
 // ProfileServiceInterface interface represents service interface methods
-type ProfileServiceInterface interface {
+type ProfileService interface {
 	GetProfileByID(ctx context.Context, id uuid.UUID) (*model.Profile, error)
 	CreateNewProfile(ctx context.Context, profile *model.Profile) error
 	UpdateProfile(ctx context.Context, profile *model.Profile) error
