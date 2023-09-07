@@ -22,11 +22,10 @@ func NewProfileRepository(pool *pgxpool.Pool) *ProfileRepository {
 	return &ProfileRepository{pool: pool}
 }
 
-// GetAllProfiles function returns all profiles from database
-func (db *ProfileRepository) GetAllProfiles(ctx context.Context) ([]*model.Profile, error) {
+func (db *ProfileRepository) GetIDByLoginPassword(ctx context.Context, login string) (ID uuid.UUID, pass string, err error) {
 	tx, err := db.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: "repeatable read"})
 	if err != nil {
-		return nil, fmt.Errorf("BeginTx: %w", err)
+		return uuid.Nil, "", fmt.Errorf("BeginTx: %w", err)
 	}
 	defer func() {
 		if err != nil {
@@ -43,17 +42,13 @@ func (db *ProfileRepository) GetAllProfiles(ctx context.Context) ([]*model.Profi
 			}
 		}
 	}()
-	users := []*model.Profile{}
-	rows, err := db.pool.Query(ctx, "SELECT id, login, password FROM profile.profile")
-	for rows.Next() {
-		user := &model.Profile{}
-		err := rows.Scan(&user.ID, &user.Login, &user.Password)
-		if err != nil {
-			return nil, fmt.Errorf("Scan(): %w", err) // Returning error message
-		}
-		users = append(users, user)
+
+	err = tx.QueryRow(ctx, "SELECT id, password FROM profile.profile WHERE login=$1", login).Scan(&ID, &pass)
+	if err != nil || pass == "" {
+		logrus.Errorf("QueryRow: %v", err)
+		return uuid.Nil, "", fmt.Errorf("QueryRow: %w", err)
 	}
-	return users, nil
+	return ID, pass, nil
 }
 
 // GetProfileByID function returns a profile with the given ID
@@ -78,7 +73,7 @@ func (db *ProfileRepository) GetProfileByID(ctx context.Context, id uuid.UUID) (
 		}
 	}()
 	profile := &model.Profile{}
-	err = tx.QueryRow(ctx, "SELECT id, login, password FROM profile.profile WHERE id = $1", id).Scan(&profile.ID, &profile.Login, &profile.Password)
+	err = tx.QueryRow(ctx, "SELECT id, login, password, refresh_token FROM profile.profile WHERE id = $1", id).Scan(&profile.ID, &profile.Login, &profile.Password, &profile.RefreshToken)
 	if err != nil {
 		logrus.Errorf("QueryRow: %v", err)
 		return nil, fmt.Errorf("QueryRow: %w", err)
@@ -137,11 +132,19 @@ func (db *ProfileRepository) UpdateProfile(ctx context.Context, profile *model.P
 	}()
 	_, err = tx.Exec(
 		ctx,
-		"UPDATE profile.profile SET balance_id=$1, login=$2, password=$3, refresh_token=$4 WHERE id=$5",
-		profile.BalanceID, profile.Login, profile.Password, profile.RefreshToken, profile.ID,
+		"UPDATE profile.profile SET login=$1, password=$2, refresh_token=$3 WHERE id=$4",
+		profile.Login, profile.Password, profile.RefreshToken, profile.ID,
 	)
 	if err != nil {
 		logrus.Errorf("Exec: %v", err)
+		return fmt.Errorf("exec: %w", err)
+	}
+	return nil
+}
+
+func (db *ProfileRepository) DeleteProfileByID(ctx context.Context, id string) error {
+	tag, err := db.pool.Exec(ctx, "DELETE FROM profile.profile WHERE id=$1", id)
+	if err != nil || tag.RowsAffected() == 0 {
 		return fmt.Errorf("exec: %w", err)
 	}
 	return nil

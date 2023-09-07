@@ -26,13 +26,28 @@ func NewProfileHandler(srv ProfileServiceInterface) *ProfileHandler {
 type ProfileServiceInterface interface {
 	GetProfileByID(ctx context.Context, id uuid.UUID) (*model.Profile, error)
 	CreateNewProfile(ctx context.Context, profile *model.Profile) error
+	UpdateProfile(ctx context.Context, profile *model.Profile) error
+	Login(ctx context.Context, loginPass *model.Auth) (uuid.UUID, error)
+}
+
+func (ph *ProfileHandler) Login(ctx context.Context, req *proto.LoginRequest) (*proto.LoginResponse, error) {
+	infoToLogin := &model.Auth{
+		Login:    req.Auth.Login,
+		Password: req.Auth.Password,
+	}
+	ID, err := ph.srv.Login(ctx, infoToLogin)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{"infoToLogin": infoToLogin}).Errorf("Login: %v", err)
+		return nil, fmt.Errorf("Login: %w", err)
+	}
+	return &proto.LoginResponse{ID: ID.String()}, nil
 }
 
 // GetProfileByID function gets profile vy provided ID
 func (ph *ProfileHandler) GetProfileByID(ctx context.Context, req *proto.GetProfileByIDRequest) (*proto.GetProfileByIDResponse, error) {
 	ID, err := uuid.Parse(req.ID)
 	if err != nil {
-		logrus.WithFields(logrus.Fields{"req.User.Balance_ID": req.ID}).Errorf("Parse: %v", err)
+		logrus.WithFields(logrus.Fields{"ID": req.ID}).Errorf("Parse: %v", err)
 		return nil, fmt.Errorf("parse: %w", err)
 	}
 	profile, err := ph.srv.GetProfileByID(ctx, ID)
@@ -41,9 +56,10 @@ func (ph *ProfileHandler) GetProfileByID(ctx context.Context, req *proto.GetProf
 		return nil, fmt.Errorf("GetProfileByID: %w", err)
 	}
 	protoProfile := &proto.Profile{
-		ID:       profile.ID.String(),
-		Login:    profile.Login,
-		Password: profile.Password,
+		ID:           profile.ID.String(),
+		Login:        profile.Login,
+		Password:     profile.Password,
+		RefreshToken: profile.RefreshToken,
 	}
 	return &proto.GetProfileByIDResponse{Profile: protoProfile}, nil
 }
@@ -65,5 +81,21 @@ func (ph *ProfileHandler) CreateNewProfile(ctx context.Context, req *proto.Creat
 
 // UpdateProfile function updates a profile information
 func (ph *ProfileHandler) UpdateProfile(ctx context.Context, req *proto.UpdateProfileRequest) (*proto.UpdateProfileResponse, error) {
+	ID, err := uuid.Parse(req.Profile.ID)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{"ID": req.Profile.ID}).Errorf("Parse: %v", err)
+		return nil, fmt.Errorf("parse: %w", err)
+	}
+	ProfileToUpdate := &model.Profile{
+		ID:           ID,
+		Login:        req.Profile.Login,
+		Password:     req.Profile.Password,
+		RefreshToken: req.Profile.RefreshToken,
+	}
+	err = ph.srv.UpdateProfile(ctx, ProfileToUpdate)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{"newProfile": ProfileToUpdate}).Errorf("UpdateProfile: %v", err)
+		return nil, fmt.Errorf("UpdateProfile: %w", err)
+	}
 	return &proto.UpdateProfileResponse{}, nil
 }
