@@ -7,11 +7,12 @@ import "github.com/google/uuid"
 type Profile struct {
 	ID           uuid.UUID `json:"id"`
 	Login        string    `json:"login"`
-	Password     string    `json:"password"`
+	Password     []byte    `json:"password"`
 	RefreshToken string    `json:"refresh_token"`
+	Username     string    `json:"username"`
 }
 
 type Auth struct {
 	Login    string `json:"login"`
-	Password string `json:"password"`
+	Password []byte `json:"password"`
 }

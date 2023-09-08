@@ -73,7 +73,7 @@ func CreateTestProfile() error {
 }
 
 func DeleteTestProfile(id uuid.UUID) error {
-	err := rps.DeleteProfileByID(context.Background(), id.String())
+	err := rps.DeleteProfileByID(context.Background(), id)
 	if err != nil {
 		return err
 	}

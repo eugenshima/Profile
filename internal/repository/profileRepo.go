@@ -22,10 +22,10 @@ func NewProfileRepository(pool *pgxpool.Pool) *ProfileRepository {
 	return &ProfileRepository{pool: pool}
 }
 
-func (db *ProfileRepository) GetIDByLoginPassword(ctx context.Context, login string) (ID uuid.UUID, pass string, err error) {
+func (db *ProfileRepository) GetIDByLoginPassword(ctx context.Context, login string) (ID uuid.UUID, pass []byte, err error) {
 	tx, err := db.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: "repeatable read"})
 	if err != nil {
-		return uuid.Nil, "", fmt.Errorf("BeginTx: %w", err)
+		return uuid.Nil, nil, fmt.Errorf("BeginTx: %w", err)
 	}
 	defer func() {
 		if err != nil {
@@ -46,7 +46,7 @@ func (db *ProfileRepository) GetIDByLoginPassword(ctx context.Context, login str
 	err = tx.QueryRow(ctx, "SELECT id, password FROM profile.profile WHERE login=$1", login).Scan(&ID, &pass)
 	if err != nil {
 		logrus.Errorf("QueryRow: %v", err)
-		return uuid.Nil, "", fmt.Errorf("QueryRow: %w", err)
+		return uuid.Nil, nil, fmt.Errorf("QueryRow: %w", err)
 	}
 	return ID, pass, nil
 }
@@ -73,7 +73,7 @@ func (db *ProfileRepository) GetProfileByID(ctx context.Context, id uuid.UUID) (
 		}
 	}()
 	profile := &model.Profile{}
-	err = tx.QueryRow(ctx, "SELECT id, login, password, refresh_token FROM profile.profile WHERE id = $1", id).Scan(&profile.ID, &profile.Login, &profile.Password, &profile.RefreshToken)
+	err = tx.QueryRow(ctx, "SELECT id, login, password, refresh_token, username FROM profile.profile WHERE id = $1", id).Scan(&profile.ID, &profile.Login, &profile.Password, &profile.RefreshToken, &profile.Username)
 	if err != nil {
 		logrus.Errorf("QueryRow: %v", err)
 		return nil, fmt.Errorf("QueryRow: %w", err)
@@ -102,7 +102,7 @@ func (db *ProfileRepository) CreateProfile(ctx context.Context, profile *model.P
 			}
 		}
 	}()
-	_, err = db.pool.Exec(ctx, "INSERT INTO profile.profile (id, login, password, refresh_token) VALUES ($1, $2, $3, $4)", profile.ID, profile.Login, profile.Password, profile.RefreshToken)
+	_, err = db.pool.Exec(ctx, "INSERT INTO profile.profile (id, login, password, username) VALUES ($1, $2, $3, $4)", profile.ID, profile.Login, profile.Password, profile.Username)
 	if err != nil {
 		return fmt.Errorf("exec: %w", err)
 	}
@@ -132,8 +132,8 @@ func (db *ProfileRepository) UpdateProfile(ctx context.Context, profile *model.P
 	}()
 	_, err = tx.Exec(
 		ctx,
-		"UPDATE profile.profile SET login=$1, password=$2, refresh_token=$3 WHERE id=$4",
-		profile.Login, profile.Password, profile.RefreshToken, profile.ID,
+		"UPDATE profile.profile SET login=$1, password=$2, refresh_token=$3, username=$4 WHERE id=$5",
+		profile.Login, profile.Password, profile.RefreshToken, profile.Username, profile.ID,
 	)
 	if err != nil {
 		logrus.Errorf("Exec: %v", err)
@@ -142,8 +142,27 @@ func (db *ProfileRepository) UpdateProfile(ctx context.Context, profile *model.P
 	return nil
 }
 
-func (db *ProfileRepository) DeleteProfileByID(ctx context.Context, id string) error {
-	tag, err := db.pool.Exec(ctx, "DELETE FROM profile.profile WHERE id=$1", id)
+func (db *ProfileRepository) DeleteProfileByID(ctx context.Context, id uuid.UUID) error {
+	tx, err := db.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: "repeatable read"})
+	if err != nil {
+		return fmt.Errorf("BeginTx: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			err = tx.Rollback(ctx)
+			if err != nil {
+				logrus.Errorf("Rollback: %v", err)
+				return
+			}
+		} else {
+			err = tx.Commit(ctx)
+			if err != nil {
+				logrus.Errorf("Commit: %v", err)
+				return
+			}
+		}
+	}()
+	tag, err := tx.Exec(ctx, "DELETE FROM profile.profile WHERE id=$1", id)
 	if err != nil || tag.RowsAffected() == 0 {
 		return fmt.Errorf("exec: %w", err)
 	}

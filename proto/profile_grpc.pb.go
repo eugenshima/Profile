@@ -26,6 +26,7 @@ type PriceServiceClient interface {
 	CreateNewProfile(ctx context.Context, in *CreateNewProfileRequest, opts ...grpc.CallOption) (*CreateNewProfileResponse, error)
 	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	DeleteProfileByID(ctx context.Context, in *DeleteProfileByIDRequest, opts ...grpc.CallOption) (*DeleteProfileByIDResponse, error)
 }
 
 type priceServiceClient struct {
@@ -72,6 +73,15 @@ func (c *priceServiceClient) Login(ctx context.Context, in *LoginRequest, opts .
 	return out, nil
 }
 
+func (c *priceServiceClient) DeleteProfileByID(ctx context.Context, in *DeleteProfileByIDRequest, opts ...grpc.CallOption) (*DeleteProfileByIDResponse, error) {
+	out := new(DeleteProfileByIDResponse)
+	err := c.cc.Invoke(ctx, "/PriceService/DeleteProfileByID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PriceServiceServer is the server API for PriceService service.
 // All implementations must embed UnimplementedPriceServiceServer
 // for forward compatibility
@@ -80,6 +90,7 @@ type PriceServiceServer interface {
 	CreateNewProfile(context.Context, *CreateNewProfileRequest) (*CreateNewProfileResponse, error)
 	UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	DeleteProfileByID(context.Context, *DeleteProfileByIDRequest) (*DeleteProfileByIDResponse, error)
 	mustEmbedUnimplementedPriceServiceServer()
 }
 
@@ -98,6 +109,9 @@ func (UnimplementedPriceServiceServer) UpdateProfile(context.Context, *UpdatePro
 }
 func (UnimplementedPriceServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedPriceServiceServer) DeleteProfileByID(context.Context, *DeleteProfileByIDRequest) (*DeleteProfileByIDResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteProfileByID not implemented")
 }
 func (UnimplementedPriceServiceServer) mustEmbedUnimplementedPriceServiceServer() {}
 
@@ -184,6 +198,24 @@ func _PriceService_Login_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PriceService_DeleteProfileByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteProfileByIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PriceServiceServer).DeleteProfileByID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/PriceService/DeleteProfileByID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PriceServiceServer).DeleteProfileByID(ctx, req.(*DeleteProfileByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PriceService_ServiceDesc is the grpc.ServiceDesc for PriceService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -206,6 +238,10 @@ var PriceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Login",
 			Handler:    _PriceService_Login_Handler,
+		},
+		{
+			MethodName: "DeleteProfileByID",
+			Handler:    _PriceService_DeleteProfileByID_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

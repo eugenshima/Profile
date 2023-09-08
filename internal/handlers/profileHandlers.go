@@ -30,6 +30,7 @@ type ProfileService interface {
 	CreateNewProfile(ctx context.Context, profile *model.Profile) error
 	UpdateProfile(ctx context.Context, profile *model.Profile) error
 	Login(ctx context.Context, loginPass *model.Auth) (uuid.UUID, error)
+	DeleteProfileByID(ctx context.Context, id uuid.UUID) error
 }
 
 func (ph *ProfileHandler) Login(ctx context.Context, req *proto.LoginRequest) (*proto.LoginResponse, error) {
@@ -70,8 +71,9 @@ func (ph *ProfileHandler) GetProfileByID(ctx context.Context, req *proto.GetProf
 func (ph *ProfileHandler) CreateNewProfile(ctx context.Context, req *proto.CreateNewProfileRequest) (*proto.CreateNewProfileResponse, error) {
 	newProfile := &model.Profile{
 		ID:       uuid.New(),
-		Login:    req.Auth.Login,
-		Password: req.Auth.Password,
+		Login:    req.Profile.Login,
+		Password: req.Profile.Password,
+		Username: req.Profile.Username,
 	}
 	err := ph.srv.CreateNewProfile(ctx, newProfile)
 	if err != nil {
@@ -100,4 +102,18 @@ func (ph *ProfileHandler) UpdateProfile(ctx context.Context, req *proto.UpdatePr
 		return nil, fmt.Errorf("UpdateProfile: %w", err)
 	}
 	return &proto.UpdateProfileResponse{}, nil
+}
+
+func (ph *ProfileHandler) DeleteProfileByID(ctx context.Context, req *proto.DeleteProfileByIDRequest) (*proto.DeleteProfileByIDResponse, error) {
+	ID, err := uuid.Parse(req.ID)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{"ID": req.ID}).Errorf("Parse: %v", err)
+		return nil, fmt.Errorf("parse: %w", err)
+	}
+	err = ph.srv.DeleteProfileByID(ctx, ID)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{"ID": ID}).Errorf("DeleteProfileByID: %v", err)
+		return nil, fmt.Errorf("DeleteProfileByID: %w", err)
+	}
+	return &proto.DeleteProfileByIDResponse{}, nil
 }

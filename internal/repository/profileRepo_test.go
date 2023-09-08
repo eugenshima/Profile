@@ -15,12 +15,12 @@ var (
 	testProfile = &model.Profile{
 		ID:           uuid.New(),
 		Login:        "test_login",
-		Password:     "test_password",
+		Password:     []byte("test_password"),
 		RefreshToken: "test_token",
 	}
 	testAuth = &model.Auth{
 		Login:    "test_login",
-		Password: "test_password",
+		Password: []byte("test_password"),
 	}
 )
 
@@ -95,14 +95,14 @@ func TestUpdateProfile(t *testing.T) {
 	err := CreateTestProfile()
 	require.NoError(t, err)
 	defer func() {
-		err = DeleteTestProfile(testProfile.ID)
+		err = rps.DeleteProfileByID(context.Background(), testProfile.ID)
 		require.NoError(t, err)
 	}()
 
 	testUpdateProfile := &model.Profile{
 		ID:           uuid.New(),
 		Login:        "new_test_login",
-		Password:     "new_test_password",
+		Password:     []byte("new_test_password"),
 		RefreshToken: "new_test_token",
 	}
 

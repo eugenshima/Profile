@@ -16,7 +16,7 @@ var (
 	mockProfileService *mocks.ProfileService
 	mockAuth           = &model.Auth{
 		Login:    "test_login",
-		Password: "test_password",
+		Password: []byte("test_password"),
 	}
 )
 

@@ -8,6 +8,7 @@ import (
 	"github.com/eugenshima/profile/internal/model"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // ProfileService struct represents a profile service
@@ -25,7 +26,8 @@ type ProfileRepositoryInterface interface {
 	GetProfileByID(ctx context.Context, id uuid.UUID) (*model.Profile, error)
 	CreateProfile(ctx context.Context, profile *model.Profile) error
 	UpdateProfile(ctx context.Context, profile *model.Profile) error
-	GetIDByLoginPassword(ctx context.Context, login string) (uuid.UUID, string, error)
+	GetIDByLoginPassword(ctx context.Context, login string) (uuid.UUID, []byte, error)
+	DeleteProfileByID(ctx context.Context, id uuid.UUID) error
 }
 
 // GetProfileByID returns a profile by given ID
@@ -47,8 +49,13 @@ func (s *ProfileService) Login(ctx context.Context, login *model.Auth) (uuid.UUI
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("GetIDByLoginPassword: %w", err)
 	}
-	if password != login.Password {
+	err = bcrypt.CompareHashAndPassword(password, login.Password)
+	if err != nil {
 		return uuid.Nil, fmt.Errorf("wrong password: %w", err)
 	}
 	return id, nil
+}
+
+func (s *ProfileService) DeleteProfileByID(ctx context.Context, id uuid.UUID) error {
+	return s.rps.DeleteProfileByID(ctx, id)
 }
