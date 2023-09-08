@@ -49,7 +49,7 @@ func (s *ProfileService) Login(ctx context.Context, login *model.Auth) (uuid.UUI
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("GetIDByLoginPassword: %w", err)
 	}
-	err = bcrypt.CompareHashAndPassword(password, login.Password)
+	err = bcrypt.CompareHashAndPassword(login.Password, password)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("wrong password: %w", err)
 	}
