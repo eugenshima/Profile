@@ -18,10 +18,10 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// PriceServiceClient is the client API for PriceService service.
+// ProfilesClient is the client API for Profiles service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type PriceServiceClient interface {
+type ProfilesClient interface {
 	GetProfileByID(ctx context.Context, in *GetProfileByIDRequest, opts ...grpc.CallOption) (*GetProfileByIDResponse, error)
 	CreateNewProfile(ctx context.Context, in *CreateNewProfileRequest, opts ...grpc.CallOption) (*CreateNewProfileResponse, error)
 	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error)
@@ -29,219 +29,219 @@ type PriceServiceClient interface {
 	DeleteProfileByID(ctx context.Context, in *DeleteProfileByIDRequest, opts ...grpc.CallOption) (*DeleteProfileByIDResponse, error)
 }
 
-type priceServiceClient struct {
+type profilesClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewPriceServiceClient(cc grpc.ClientConnInterface) PriceServiceClient {
-	return &priceServiceClient{cc}
+func NewProfilesClient(cc grpc.ClientConnInterface) ProfilesClient {
+	return &profilesClient{cc}
 }
 
-func (c *priceServiceClient) GetProfileByID(ctx context.Context, in *GetProfileByIDRequest, opts ...grpc.CallOption) (*GetProfileByIDResponse, error) {
+func (c *profilesClient) GetProfileByID(ctx context.Context, in *GetProfileByIDRequest, opts ...grpc.CallOption) (*GetProfileByIDResponse, error) {
 	out := new(GetProfileByIDResponse)
-	err := c.cc.Invoke(ctx, "/PriceService/GetProfileByID", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/Profiles/GetProfileByID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *priceServiceClient) CreateNewProfile(ctx context.Context, in *CreateNewProfileRequest, opts ...grpc.CallOption) (*CreateNewProfileResponse, error) {
+func (c *profilesClient) CreateNewProfile(ctx context.Context, in *CreateNewProfileRequest, opts ...grpc.CallOption) (*CreateNewProfileResponse, error) {
 	out := new(CreateNewProfileResponse)
-	err := c.cc.Invoke(ctx, "/PriceService/CreateNewProfile", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/Profiles/CreateNewProfile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *priceServiceClient) UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error) {
+func (c *profilesClient) UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error) {
 	out := new(UpdateProfileResponse)
-	err := c.cc.Invoke(ctx, "/PriceService/UpdateProfile", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/Profiles/UpdateProfile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *priceServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
+func (c *profilesClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
 	out := new(LoginResponse)
-	err := c.cc.Invoke(ctx, "/PriceService/Login", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/Profiles/Login", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *priceServiceClient) DeleteProfileByID(ctx context.Context, in *DeleteProfileByIDRequest, opts ...grpc.CallOption) (*DeleteProfileByIDResponse, error) {
+func (c *profilesClient) DeleteProfileByID(ctx context.Context, in *DeleteProfileByIDRequest, opts ...grpc.CallOption) (*DeleteProfileByIDResponse, error) {
 	out := new(DeleteProfileByIDResponse)
-	err := c.cc.Invoke(ctx, "/PriceService/DeleteProfileByID", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/Profiles/DeleteProfileByID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// PriceServiceServer is the server API for PriceService service.
-// All implementations must embed UnimplementedPriceServiceServer
+// ProfilesServer is the server API for Profiles service.
+// All implementations must embed UnimplementedProfilesServer
 // for forward compatibility
-type PriceServiceServer interface {
+type ProfilesServer interface {
 	GetProfileByID(context.Context, *GetProfileByIDRequest) (*GetProfileByIDResponse, error)
 	CreateNewProfile(context.Context, *CreateNewProfileRequest) (*CreateNewProfileResponse, error)
 	UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	DeleteProfileByID(context.Context, *DeleteProfileByIDRequest) (*DeleteProfileByIDResponse, error)
-	mustEmbedUnimplementedPriceServiceServer()
+	mustEmbedUnimplementedProfilesServer()
 }
 
-// UnimplementedPriceServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedPriceServiceServer struct {
+// UnimplementedProfilesServer must be embedded to have forward compatible implementations.
+type UnimplementedProfilesServer struct {
 }
 
-func (UnimplementedPriceServiceServer) GetProfileByID(context.Context, *GetProfileByIDRequest) (*GetProfileByIDResponse, error) {
+func (UnimplementedProfilesServer) GetProfileByID(context.Context, *GetProfileByIDRequest) (*GetProfileByIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfileByID not implemented")
 }
-func (UnimplementedPriceServiceServer) CreateNewProfile(context.Context, *CreateNewProfileRequest) (*CreateNewProfileResponse, error) {
+func (UnimplementedProfilesServer) CreateNewProfile(context.Context, *CreateNewProfileRequest) (*CreateNewProfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateNewProfile not implemented")
 }
-func (UnimplementedPriceServiceServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error) {
+func (UnimplementedProfilesServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateProfile not implemented")
 }
-func (UnimplementedPriceServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
+func (UnimplementedProfilesServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedPriceServiceServer) DeleteProfileByID(context.Context, *DeleteProfileByIDRequest) (*DeleteProfileByIDResponse, error) {
+func (UnimplementedProfilesServer) DeleteProfileByID(context.Context, *DeleteProfileByIDRequest) (*DeleteProfileByIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteProfileByID not implemented")
 }
-func (UnimplementedPriceServiceServer) mustEmbedUnimplementedPriceServiceServer() {}
+func (UnimplementedProfilesServer) mustEmbedUnimplementedProfilesServer() {}
 
-// UnsafePriceServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to PriceServiceServer will
+// UnsafeProfilesServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ProfilesServer will
 // result in compilation errors.
-type UnsafePriceServiceServer interface {
-	mustEmbedUnimplementedPriceServiceServer()
+type UnsafeProfilesServer interface {
+	mustEmbedUnimplementedProfilesServer()
 }
 
-func RegisterPriceServiceServer(s grpc.ServiceRegistrar, srv PriceServiceServer) {
-	s.RegisterService(&PriceService_ServiceDesc, srv)
+func RegisterProfilesServer(s grpc.ServiceRegistrar, srv ProfilesServer) {
+	s.RegisterService(&Profiles_ServiceDesc, srv)
 }
 
-func _PriceService_GetProfileByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Profiles_GetProfileByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetProfileByIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PriceServiceServer).GetProfileByID(ctx, in)
+		return srv.(ProfilesServer).GetProfileByID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/PriceService/GetProfileByID",
+		FullMethod: "/Profiles/GetProfileByID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PriceServiceServer).GetProfileByID(ctx, req.(*GetProfileByIDRequest))
+		return srv.(ProfilesServer).GetProfileByID(ctx, req.(*GetProfileByIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PriceService_CreateNewProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Profiles_CreateNewProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateNewProfileRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PriceServiceServer).CreateNewProfile(ctx, in)
+		return srv.(ProfilesServer).CreateNewProfile(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/PriceService/CreateNewProfile",
+		FullMethod: "/Profiles/CreateNewProfile",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PriceServiceServer).CreateNewProfile(ctx, req.(*CreateNewProfileRequest))
+		return srv.(ProfilesServer).CreateNewProfile(ctx, req.(*CreateNewProfileRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PriceService_UpdateProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Profiles_UpdateProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateProfileRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PriceServiceServer).UpdateProfile(ctx, in)
+		return srv.(ProfilesServer).UpdateProfile(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/PriceService/UpdateProfile",
+		FullMethod: "/Profiles/UpdateProfile",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PriceServiceServer).UpdateProfile(ctx, req.(*UpdateProfileRequest))
+		return srv.(ProfilesServer).UpdateProfile(ctx, req.(*UpdateProfileRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PriceService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Profiles_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(LoginRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PriceServiceServer).Login(ctx, in)
+		return srv.(ProfilesServer).Login(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/PriceService/Login",
+		FullMethod: "/Profiles/Login",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PriceServiceServer).Login(ctx, req.(*LoginRequest))
+		return srv.(ProfilesServer).Login(ctx, req.(*LoginRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PriceService_DeleteProfileByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Profiles_DeleteProfileByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteProfileByIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PriceServiceServer).DeleteProfileByID(ctx, in)
+		return srv.(ProfilesServer).DeleteProfileByID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/PriceService/DeleteProfileByID",
+		FullMethod: "/Profiles/DeleteProfileByID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PriceServiceServer).DeleteProfileByID(ctx, req.(*DeleteProfileByIDRequest))
+		return srv.(ProfilesServer).DeleteProfileByID(ctx, req.(*DeleteProfileByIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// PriceService_ServiceDesc is the grpc.ServiceDesc for PriceService service.
+// Profiles_ServiceDesc is the grpc.ServiceDesc for Profiles service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var PriceService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "PriceService",
-	HandlerType: (*PriceServiceServer)(nil),
+var Profiles_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "Profiles",
+	HandlerType: (*ProfilesServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetProfileByID",
-			Handler:    _PriceService_GetProfileByID_Handler,
+			Handler:    _Profiles_GetProfileByID_Handler,
 		},
 		{
 			MethodName: "CreateNewProfile",
-			Handler:    _PriceService_CreateNewProfile_Handler,
+			Handler:    _Profiles_CreateNewProfile_Handler,
 		},
 		{
 			MethodName: "UpdateProfile",
-			Handler:    _PriceService_UpdateProfile_Handler,
+			Handler:    _Profiles_UpdateProfile_Handler,
 		},
 		{
 			MethodName: "Login",
-			Handler:    _PriceService_Login_Handler,
+			Handler:    _Profiles_Login_Handler,
 		},
 		{
 			MethodName: "DeleteProfileByID",
-			Handler:    _PriceService_DeleteProfileByID_Handler,
+			Handler:    _Profiles_DeleteProfileByID_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

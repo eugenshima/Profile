@@ -110,7 +110,7 @@ func (db *ProfileRepository) CreateProfile(ctx context.Context, profile *model.P
 }
 
 // UpdateProfile function updates the profile information in database
-func (db *ProfileRepository) UpdateProfile(ctx context.Context, profile *model.Profile) error {
+func (db *ProfileRepository) SaveRefreshToken(ctx context.Context, profile *model.UpdateTokens) error {
 	tx, err := db.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: "repeatable read"})
 	if err != nil {
 		return fmt.Errorf("BeginTx: %w", err)
@@ -132,8 +132,8 @@ func (db *ProfileRepository) UpdateProfile(ctx context.Context, profile *model.P
 	}()
 	_, err = tx.Exec(
 		ctx,
-		"UPDATE profile.profile SET login=$1, password=$2, refresh_token=$3, username=$4 WHERE id=$5",
-		profile.Login, profile.Password, profile.RefreshToken, profile.Username, profile.ID,
+		"UPDATE profile.profile SET refresh_token=$1 WHERE id=$2",
+		profile.RefreshToken, profile.ID,
 	)
 	if err != nil {
 		logrus.Errorf("Exec: %v", err)

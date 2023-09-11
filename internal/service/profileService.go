@@ -25,7 +25,7 @@ func NewProfileService(rps ProfileRepositoryInterface) *ProfileService {
 type ProfileRepositoryInterface interface {
 	GetProfileByID(ctx context.Context, id uuid.UUID) (*model.Profile, error)
 	CreateProfile(ctx context.Context, profile *model.Profile) error
-	UpdateProfile(ctx context.Context, profile *model.Profile) error
+	SaveRefreshToken(ctx context.Context, profile *model.UpdateTokens) error
 	GetIDByLoginPassword(ctx context.Context, login string) (uuid.UUID, []byte, error)
 	DeleteProfileByID(ctx context.Context, id uuid.UUID) error
 }
@@ -40,8 +40,8 @@ func (s *ProfileService) CreateNewProfile(ctx context.Context, profile *model.Pr
 	return s.rps.CreateProfile(ctx, profile)
 }
 
-func (s *ProfileService) UpdateProfile(ctx context.Context, profile *model.Profile) error {
-	return s.rps.UpdateProfile(ctx, profile)
+func (s *ProfileService) UpdateProfile(ctx context.Context, profile *model.UpdateTokens) error {
+	return s.rps.SaveRefreshToken(ctx, profile)
 }
 
 func (s *ProfileService) Login(ctx context.Context, login *model.Auth) (uuid.UUID, error) {
@@ -49,9 +49,9 @@ func (s *ProfileService) Login(ctx context.Context, login *model.Auth) (uuid.UUI
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("GetIDByLoginPassword: %w", err)
 	}
-	err = bcrypt.CompareHashAndPassword(login.Password, password)
+	err = bcrypt.CompareHashAndPassword(password, []byte(login.Password))
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("wrong password: %w", err)
+		return uuid.Nil, fmt.Errorf("CompareHashAndPassword: %w", err)
 	}
 	return id, nil
 }

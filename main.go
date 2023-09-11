@@ -59,7 +59,7 @@ func main() {
 	}
 
 	serverRegistrar := grpc.NewServer()
-	proto.RegisterPriceServiceServer(serverRegistrar, handler)
+	proto.RegisterProfilesServer(serverRegistrar, handler)
 	err = serverRegistrar.Serve(lis)
 	if err != nil {
 		logrus.Fatalf("cannot start server: %s", err)
