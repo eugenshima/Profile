@@ -1,3 +1,2 @@
 .vscode/launch.json
 .golangci.yml
-proto/profile.proto
