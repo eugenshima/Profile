@@ -59,10 +59,11 @@ func (ph *ProfileHandler) GetProfileByID(ctx context.Context, req *proto.GetProf
 		return nil, fmt.Errorf("GetProfileByID: %w", err)
 	}
 	protoProfile := &proto.Profile{
-		ID:       profile.ID.String(),
-		Login:    profile.Login,
-		Password: profile.Password,
-		//RefreshToken: profile.RefreshToken,
+		ID:           profile.ID.String(),
+		Login:        profile.Login,
+		Password:     profile.Password,
+		RefreshToken: profile.RefreshToken,
+		Username:     profile.Username,
 	}
 	return &proto.GetProfileByIDResponse{Profile: protoProfile}, nil
 }
