@@ -5,7 +5,7 @@ message Profile {
     string ID = 1;
     string Login = 2;
     bytes Password = 3;
-    string RefreshToken = 4;
+    bytes RefreshToken = 4;
     string Username = 5;
 }
 
