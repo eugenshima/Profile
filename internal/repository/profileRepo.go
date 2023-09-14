@@ -130,12 +130,12 @@ func (db *ProfileRepository) SaveRefreshToken(ctx context.Context, profile *mode
 			}
 		}
 	}()
-	_, err = tx.Exec(
+	tag, err := tx.Exec(
 		ctx,
 		"UPDATE profile.profile SET refresh_token=$1 WHERE id=$2",
 		profile.RefreshToken, profile.ID,
 	)
-	if err != nil {
+	if err != nil || tag.RowsAffected() == 0 {
 		logrus.Errorf("Exec: %v", err)
 		return fmt.Errorf("exec: %w", err)
 	}

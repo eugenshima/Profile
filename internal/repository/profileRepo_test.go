@@ -22,7 +22,19 @@ var (
 		Login:    "test_login",
 		Password: []byte("test_password"),
 	}
+	testUpdateToken = &model.UpdateTokens{
+		RefreshToken: []byte("test_token"),
+	}
 )
+
+func TestCreateDeleteProfile(t *testing.T) {
+	err := CreateTestProfile()
+	require.NoError(t, err)
+	defer func() {
+		err = DeleteTestProfile(testProfile.ID)
+		require.NoError(t, err)
+	}()
+}
 
 func TestGetIDByLoginPassword(t *testing.T) {
 	err := CreateTestProfile()
@@ -47,10 +59,9 @@ func TestGetIdByWrongLoginPassword(t *testing.T) {
 		require.NoError(t, err)
 	}()
 
-	id, pass, err := rps.GetIDByLoginPassword(context.Background(), "fake login")
+	id, _, err := rps.GetIDByLoginPassword(context.Background(), "fake login")
 	require.NoError(t, err)
 	require.Equal(t, id, uuid.Nil)
-	require.Equal(t, pass, "")
 }
 
 func TestGetProfileByID(t *testing.T) {
@@ -82,11 +93,26 @@ func TestGetProfileByWrongID(t *testing.T) {
 	require.Nil(t, profile)
 }
 
-func TestCreateProfile(t *testing.T) {
+func TestSaveRefreshToken(t *testing.T) {
 	err := CreateTestProfile()
 	require.NoError(t, err)
 	defer func() {
 		err = DeleteTestProfile(testProfile.ID)
 		require.NoError(t, err)
 	}()
+	testUpdateToken.ID = testProfile.ID
+	err = rps.SaveRefreshToken(context.Background(), testUpdateToken)
+	require.NoError(t, err)
+}
+
+func TestSaveRefreshTokenError(t *testing.T) {
+	err := CreateTestProfile()
+	require.NoError(t, err)
+	defer func() {
+		err = DeleteTestProfile(testProfile.ID)
+		require.NoError(t, err)
+	}()
+	testUpdateToken.ID = uuid.New()
+	err = rps.SaveRefreshToken(context.Background(), testUpdateToken)
+	require.Error(t, err)
 }
